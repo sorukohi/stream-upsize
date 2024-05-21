@@ -1,3 +1,5 @@
+`timescale 1ps/1ps
+
 module data_communication_net #(
   parameter T_DATA_WIDTH = 1,
             T_DATA_RATIO = 2

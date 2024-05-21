@@ -1,3 +1,5 @@
+`timescale 1ps/1ps
+
 module stream_upsize #(
   parameter T_DATA_WIDTH = 1,
             T_DATA_RATIO = 2
