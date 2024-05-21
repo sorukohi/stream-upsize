@@ -1,7 +1,24 @@
 `timescale 1ps/1ps
 
+/*
+FEATURE
+*/
+/*
+  1. For avoiding latency current data participate in output logic as well as
+     data of FIFO. Thus DEPTH of FIFO is T_DATA_RATIO-1.
+     Meanwhile WIDTH is T_DATA_WIDTH+1 because store data and valid (further m_keep signals) signals.
+  2. m_keep_o during to pop is unary code with also high bit in logic one. It's occur because
+     get into FIFO already correct data (that was with high s_valid), and high bit of m_keep is logic one 
+     since current data (that else not stored on fifo) also participate in output logic.
+     There are 2 situations:
+     - upsized packet transmit when is used full of T_DATA_RATIO cells (this always fifo cells + current data).
+     - Suppose fifo not full but came last packet. It always will be current packet, located in high bit of m_data_o
+       and validated of m_keep_o high bit.
+    Thus "m_keep_o during to pop is unary code with also high bit in logic one" explained.
+*/
+
 module stream_upsize #(
-  parameter T_DATA_WIDTH = 1,
+  parameter T_DATA_WIDTH = 4,
             T_DATA_RATIO = 2
 ) (
   input  logic                      clk,
@@ -27,7 +44,7 @@ module stream_upsize #(
   logic                    fifo_empty;
   logic                    fifo_full;
 
-  fifo #(
+  fifo_parallel_out #(
     .WIDTH ( T_DATA_WIDTH + 1 ),
     .DEPTH ( T_DATA_RATIO - 1 ) 
   ) fifo_inst (
@@ -63,7 +80,6 @@ module stream_upsize #(
   .fifo_push  ( fifo_push  ),
   .fifo_pop   ( fifo_pop   ),
   .up_data    ( up_data    )
-
 );
 
 endmodule
